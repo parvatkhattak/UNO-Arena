@@ -1,4 +1,2 @@
 # UNO-Arena
 
-hi
-hello
