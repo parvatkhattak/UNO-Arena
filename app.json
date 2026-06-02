@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "UNO Arena",
+    "slug": "uno-arena",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "uno-arena",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.unoarena.app",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "UNO Arena uses the local network to connect with nearby players for offline multiplayer gaming.",
+        "NSBluetoothAlwaysUsageDescription": "UNO Arena uses Bluetooth to discover and connect with nearby players.",
+        "NSBonjourServices": ["_unoarena._tcp"]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0F0F23",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.unoarena.app",
+      "permissions": [
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.CHANGE_WIFI_STATE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_ADVERTISE",
+        "android.permission.NEARBY_WIFI_DEVICES"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F0F23"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
