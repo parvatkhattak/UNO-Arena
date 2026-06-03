@@ -8,6 +8,7 @@ import GameScreen from './screens/GameScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import HowToPlayScreen from './screens/HowToPlayScreen';
+import ResultsScreen from './screens/ResultsScreen';
 import { COLORS } from './constants/theme';
 
 const Stack = createStackNavigator();
@@ -29,6 +30,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
+        <Stack.Screen name="Results" component={ResultsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

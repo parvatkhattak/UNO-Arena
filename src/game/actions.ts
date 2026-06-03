@@ -38,7 +38,7 @@ export function getPlayableCards(
 
 /** Wild Draw 4 is legit only if player has NO cards matching current color */
 export function isWildDraw4Legit(hand: Card[], currentColor: CardColor): boolean {
-  return !hand.some(c => c.color === currentColor && c.color !== 'wild');
+  return !hand.some(c => c.color !== 'wild' && c.color === currentColor);
 }
 
 /** Advance to next player index */
