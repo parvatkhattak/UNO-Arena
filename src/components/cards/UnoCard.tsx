@@ -11,6 +11,7 @@ import Svg, { Rect, Ellipse, Text as SvgText, Defs, LinearGradient, Stop } from 
 import { Card, AnyCardColor } from '../../types/game';
 import { COLORS, CARD_DIMENSIONS, BORDER_RADIUS, SHADOWS } from '../../constants/theme';
 import { VALUE_LABELS } from '../../constants/cards';
+import { playSound, triggerHaptic } from '../../utils/sounds';
 
 interface UnoCardProps {
   card: Card;
@@ -87,6 +88,7 @@ export default function UnoCard({
 
   const handlePressIn = () => {
     if (!disabled) {
+      triggerHaptic('light');
       Animated.spring(scaleAnim, {
         toValue: 1.08, damping: 10, stiffness: 300, useNativeDriver: true,
       }).start();

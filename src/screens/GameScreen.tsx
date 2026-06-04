@@ -16,6 +16,7 @@ import ColorPicker from '../components/game/ColorPicker';
 import { Card, CardColor } from '../types/game';
 import { canPlayCard, getPlayableCards } from '../game/actions';
 import { botDecide, shouldBotCallUno, getBotDelay } from '../game/ai';
+import { playSound, triggerHaptic } from '../utils/sounds';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
@@ -88,6 +89,14 @@ export default function GameScreen({ navigation }: { navigation: any }) {
       const winner = gameState.players.find(p => p.id === gameState.winner);
       const isMe = winner?.id === profile.id;
 
+      if (isMe) {
+        playSound('win');
+        triggerHaptic('success');
+      } else {
+        playSound('lose');
+        triggerHaptic('error');
+      }
+
       setTimeout(() => {
         Alert.alert(
           gameState.phase === 'game_over' ? '🏆 Game Over!' : '🎉 Round Over!',
@@ -142,27 +151,36 @@ export default function GameScreen({ navigation }: { navigation: any }) {
       // Auto-reminder: player should call UNO
     }
 
+    playSound('playCard');
+    triggerHaptic('medium');
     playCardAction(profile.id, card.id);
   };
 
   const handleColorSelect = (color: CardColor) => {
     if (selectedCard) {
+      playSound('playCard');
+      triggerHaptic('medium');
       playCardAction(profile.id, selectedCard.id, color);
     }
   };
 
   const handleDraw = () => {
     if (!isMyTurn) return;
+    playSound('drawCard');
+    triggerHaptic('light');
     drawCardAction(profile.id);
   };
 
   const handleUnoCall = () => {
     if (!myPlayer) return;
+    playSound('unoCall');
+    triggerHaptic('heavy');
     callUnoAction(profile.id);
   };
 
   const handlePass = () => {
     if (!isMyTurn) return;
+    triggerHaptic('light');
     passTurnAction(profile.id);
   };
 
