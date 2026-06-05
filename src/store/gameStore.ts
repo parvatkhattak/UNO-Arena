@@ -12,6 +12,9 @@ import {
   createInitialGameState, playCard, drawCard,
   callUno, challengeUno, passTurn, checkGameOver,
 } from '../game/engine';
+import { networkManager } from '../network/NetworkManager';
+import { useNetworkStore } from './networkStore';
+import { usePlayerStore } from './playerStore';
 
 interface GameStore {
   // State
@@ -45,6 +48,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   playCardAction: (playerId, cardId, chosenColor) => {
+    const { isHost, isConnected } = useNetworkStore.getState();
+    if (!isHost && isConnected) {
+      // Client sends action to Host
+      networkManager.sendMessage({
+        type: 'PLAYER_ACTION',
+        timestamp: Date.now(),
+        payload: { actionType: 'PLAY_CARD', cardId, chosenColor }
+      });
+      set({ selectedCard: null, showColorPicker: false });
+      return;
+    }
+
+    // Local / Host logic
     const { gameState } = get();
     if (!gameState) return;
     let newState = playCard(gameState, playerId, cardId, chosenColor);
@@ -55,9 +71,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
       selectedCard: null,
       showColorPicker: false,
     });
+
+    if (isHost && isConnected) {
+      networkManager.broadcastGameState();
+    }
   },
 
   drawCardAction: (playerId) => {
+    const { isHost, isConnected } = useNetworkStore.getState();
+    if (!isHost && isConnected) {
+      networkManager.sendMessage({
+        type: 'PLAYER_ACTION', timestamp: Date.now(),
+        payload: { actionType: 'DRAW_CARD' }
+      });
+      return;
+    }
+
     const { gameState } = get();
     if (!gameState) return;
     const newState = drawCard(gameState, playerId);
@@ -65,21 +94,60 @@ export const useGameStore = create<GameStore>((set, get) => ({
       gameState: newState,
       isMyTurn: newState.players[newState.currentPlayerIndex]?.id === playerId,
     });
+
+    if (isHost && isConnected) {
+      networkManager.broadcastGameState();
+    }
   },
 
   callUnoAction: (playerId) => {
+    const { isHost, isConnected } = useNetworkStore.getState();
+    if (!isHost && isConnected) {
+      networkManager.sendMessage({
+        type: 'PLAYER_ACTION', timestamp: Date.now(),
+        payload: { actionType: 'CALL_UNO' }
+      });
+      return;
+    }
+
     const { gameState } = get();
     if (!gameState) return;
     set({ gameState: callUno(gameState, playerId) });
+
+    if (isHost && isConnected) {
+      networkManager.broadcastGameState();
+    }
   },
 
   challengeUnoAction: (challengerId, targetId) => {
+    const { isHost, isConnected } = useNetworkStore.getState();
+    if (!isHost && isConnected) {
+      networkManager.sendMessage({
+        type: 'PLAYER_ACTION', timestamp: Date.now(),
+        payload: { actionType: 'CHALLENGE_UNO', targetId }
+      });
+      return;
+    }
+
     const { gameState } = get();
     if (!gameState) return;
     set({ gameState: challengeUno(gameState, challengerId, targetId) });
+
+    if (isHost && isConnected) {
+      networkManager.broadcastGameState();
+    }
   },
 
   passTurnAction: (playerId) => {
+    const { isHost, isConnected } = useNetworkStore.getState();
+    if (!isHost && isConnected) {
+      networkManager.sendMessage({
+        type: 'PLAYER_ACTION', timestamp: Date.now(),
+        payload: { actionType: 'PASS' }
+      });
+      return;
+    }
+
     const { gameState } = get();
     if (!gameState) return;
     const newState = passTurn(gameState, playerId);
@@ -87,10 +155,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       gameState: newState,
       isMyTurn: newState.players[newState.currentPlayerIndex]?.id === playerId,
     });
+
+    if (isHost && isConnected) {
+      networkManager.broadcastGameState();
+    }
   },
 
   setSelectedCard: (card) => set({ selectedCard: card }),
   setShowColorPicker: (show) => set({ showColorPicker: show }),
   resetGame: () => set({ gameState: null, isMyTurn: false, selectedCard: null }),
-  updateGameState: (state) => set({ gameState: state }),
+  updateGameState: (state) => {
+    const { profile } = usePlayerStore.getState();
+    set({ 
+      gameState: state,
+      isMyTurn: state.players[state.currentPlayerIndex]?.id === profile.id
+    });
+  },
 }));

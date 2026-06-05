@@ -12,6 +12,8 @@ import { COLORS, FONTS, SPACING, BORDER_RADIUS, SHADOWS } from '../constants/the
 import { useSettingsStore } from '../store/settingsStore';
 import { usePlayerStore } from '../store/playerStore';
 import { useGameStore } from '../store/gameStore';
+import { useNetworkStore } from '../store/networkStore';
+import { networkManager } from '../network/NetworkManager';
 import { Player } from '../types/game';
 import { AVATARS, BOT_NAMES } from '../constants/cards';
 
@@ -19,8 +21,10 @@ export default function LobbyScreen({ navigation }: { navigation: any }) {
   const { profile } = usePlayerStore();
   const { gameSettings } = useSettingsStore();
   const { initGame } = useGameStore();
+  const { isHost, isConnected, localIpAddress, connectionError } = useNetworkStore();
 
-  const [isHost, setIsHost] = useState<boolean | null>(null);
+  const [roleSelected, setRoleSelected] = useState<boolean>(false);
+  const [joinIp, setJoinIp] = useState<string>('');
   const [players, setPlayers] = useState<Player[]>([
     {
       id: profile.id, name: profile.name, avatar: profile.avatar,
@@ -55,11 +59,23 @@ export default function LobbyScreen({ navigation }: { navigation: any }) {
       return;
     }
     initGame(players, gameSettings);
+    networkManager.broadcastGameState(); // Tell clients game started!
     navigation.navigate('Game');
   };
 
+  const handleHostGame = async () => {
+    setRoleSelected(true);
+    await networkManager.startHosting();
+  };
+
+  const handleJoinGame = () => {
+    if (!joinIp) return;
+    setRoleSelected(true);
+    networkManager.joinGame(joinIp);
+  };
+
   // If role not selected yet, show host/join selection
-  if (isHost === null) {
+  if (!roleSelected) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Game Lobby</Text>
@@ -70,7 +86,7 @@ export default function LobbyScreen({ navigation }: { navigation: any }) {
         <View style={styles.roleContainer}>
           <TouchableOpacity
             style={[styles.roleCard, { borderColor: COLORS.accent.primary + '50' }]}
-            onPress={() => setIsHost(true)}
+            onPress={handleHostGame}
             activeOpacity={0.7}
           >
             <Text style={styles.roleIcon}>📡</Text>
@@ -78,20 +94,32 @@ export default function LobbyScreen({ navigation }: { navigation: any }) {
             <Text style={styles.roleDesc}>Create a room for others to join</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.roleCard, { borderColor: COLORS.accent.secondary + '50' }]}
-            onPress={() => setIsHost(false)}
-            activeOpacity={0.7}
-          >
+          <View style={[styles.roleCard, { borderColor: COLORS.accent.secondary + '50', paddingBottom: SPACING.md }]}>
             <Text style={styles.roleIcon}>🔗</Text>
             <Text style={[styles.roleTitle, { color: COLORS.accent.secondary }]}>Join Game</Text>
-            <Text style={styles.roleDesc}>Connect to a nearby host</Text>
-          </TouchableOpacity>
+            <Text style={styles.roleDesc}>Enter host's IP Address</Text>
+            
+            <View style={{ flexDirection: 'row', marginTop: SPACING.md, gap: SPACING.sm, width: '100%' }}>
+              <TextInput
+                style={styles.ipInput}
+                placeholder="192.168.x.x"
+                placeholderTextColor={COLORS.text.muted}
+                value={joinIp}
+                onChangeText={setJoinIp}
+                keyboardType="numeric"
+              />
+              <TouchableOpacity style={styles.joinBtn} onPress={handleJoinGame}>
+                <Text style={styles.joinBtnText}>Join</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
           <TouchableOpacity
             style={[styles.roleCard, { borderColor: COLORS.accent.success + '50' }]}
             onPress={() => {
-              setIsHost(true);
+              setRoleSelected(true);
+              useNetworkStore.getState().setHostMode(true);
+              useNetworkStore.getState().setConnected(true);
               // Auto-add a bot for quick play
               const bot: Player = {
                 id: uuidv4(), name: BOT_NAMES[0], avatar: AVATARS[5],
@@ -122,12 +150,21 @@ export default function LobbyScreen({ navigation }: { navigation: any }) {
       {/* Room code display for host */}
       {isHost && (
         <View style={styles.roomCodeContainer}>
-          <Text style={styles.roomCodeLabel}>Room Code</Text>
+          <Text style={styles.roomCodeLabel}>Host IP Address</Text>
           <Text style={styles.roomCode}>
-            {Math.random().toString(36).substring(2, 6).toUpperCase()}
+            {localIpAddress || 'Loading...'}
           </Text>
-          <Text style={styles.roomCodeHint}>Share with friends on same WiFi</Text>
+          <Text style={styles.roomCodeHint}>Others need this to join you</Text>
         </View>
+      )}
+      
+      {!isHost && !isConnected && (
+         <View style={styles.roomCodeContainer}>
+          <Text style={styles.roomCodeLabel}>Status</Text>
+          <Text style={[styles.roomCode, { fontSize: FONTS.size.lg }]}>
+            {connectionError ? `Error: ${connectionError}` : 'Connecting...'}
+          </Text>
+         </View>
       )}
 
       {/* Players list */}
@@ -228,4 +265,14 @@ const styles = StyleSheet.create({
   },
   startBtnDisabled: { opacity: 0.4 },
   startBtnText: { fontSize: FONTS.size.lg, fontWeight: '700', color: COLORS.text.primary },
+  ipInput: {
+    flex: 1, backgroundColor: COLORS.background.secondary, borderRadius: BORDER_RADIUS.md,
+    paddingHorizontal: SPACING.md, color: COLORS.text.primary, fontSize: FONTS.size.md,
+    borderWidth: 1, borderColor: COLORS.glass.border,
+  },
+  joinBtn: {
+    backgroundColor: COLORS.accent.secondary, borderRadius: BORDER_RADIUS.md,
+    justifyContent: 'center', paddingHorizontal: SPACING.lg,
+  },
+  joinBtnText: { color: COLORS.background.primary, fontWeight: 'bold' }
 });
