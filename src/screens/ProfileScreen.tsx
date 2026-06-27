@@ -28,6 +28,13 @@ export default function ProfileScreen({ navigation }: { navigation: any }) {
       </View>
       
       <TouchableOpacity 
+        style={styles.statsButton}
+        onPress={() => navigation.navigate('Stats')}
+      >
+        <Text style={styles.statsButtonText}>🏅 View Detailed Stats & Badges</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
         style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
@@ -49,4 +56,6 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: FONTS.size.sm, color: COLORS.text.secondary, marginTop: SPACING.sm },
   backButton: { padding: SPACING.md, backgroundColor: COLORS.background.card, borderRadius: BORDER_RADIUS.md, width: '100%', alignItems: 'center' },
   backButtonText: { color: COLORS.text.primary, fontSize: FONTS.size.md },
+  statsButton: { padding: SPACING.md, backgroundColor: COLORS.accent.primary, borderRadius: BORDER_RADIUS.md, width: '100%', alignItems: 'center', marginBottom: SPACING.md },
+  statsButtonText: { color: '#FFF', fontSize: FONTS.size.md, fontWeight: '700' },
 });

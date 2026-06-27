@@ -14,6 +14,7 @@ export type MessageType =
   | 'GAME_STATE'       // Host -> All: Authoritative state sync
   | 'PLAYER_ACTION'    // Client -> Host: I did something (play, draw, uno)
   | 'LEAVE'            // Client -> Host: I'm leaving
+  | 'CHAT_MESSAGE'       // Client -> Host or Host -> All: Emoji/chat message
   | 'PING'             // Keepalive
   | 'PONG';            // Keepalive response
 

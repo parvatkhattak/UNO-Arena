@@ -7,13 +7,19 @@ import React, { useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Animated, FlatList,
 } from 'react-native';
+import { v4 as uuidv4 } from 'uuid';
 import { COLORS, FONTS, SPACING, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 import { useGameStore } from '../store/gameStore';
+import { usePlayerStore } from '../store/playerStore';
+import { useStatsStore } from '../store/statsStore';
 
 export default function ResultsScreen({ navigation }: { navigation: any }) {
   const { gameState, resetGame } = useGameStore();
+  const { profile, incrementGamesPlayed, incrementGamesWon, addScore } = usePlayerStore();
+  const { addMatch } = useStatsStore();
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const savedRef = useRef(false);
 
   useEffect(() => {
     Animated.sequence([
@@ -24,6 +30,28 @@ export default function ResultsScreen({ navigation }: { navigation: any }) {
         toValue: 1, duration: 500, useNativeDriver: true,
       }),
     ]).start();
+
+    // Save match result once
+    if (gameState && !savedRef.current) {
+      savedRef.current = true;
+      const won = gameState.winner === profile.id;
+      const myPlayer = gameState.players.find(p => p.id === profile.id);
+
+      incrementGamesPlayed();
+      if (won) incrementGamesWon();
+      if (myPlayer) addScore(myPlayer.score);
+
+      addMatch({
+        id: uuidv4(),
+        mode: gameState.settings.mode,
+        playerCount: gameState.players.length,
+        won,
+        score: myPlayer?.score || 0,
+        duration: Math.floor(Math.random() * 300 + 60), // placeholder duration
+        timestamp: Date.now(),
+        opponentNames: gameState.players.filter(p => p.id !== profile.id).map(p => p.name),
+      });
+    }
   }, []);
 
   if (!gameState) {

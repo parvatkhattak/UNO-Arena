@@ -17,6 +17,9 @@ import { Card, CardColor } from '../types/game';
 import { canPlayCard, getPlayableCards } from '../game/actions';
 import { botDecide, shouldBotCallUno, getBotDelay } from '../game/ai';
 import { playSound, triggerHaptic } from '../utils/sounds';
+import { EmojiBar, FloatingEmoji } from '../components/game/EmojiBar';
+import { networkManager } from '../network/NetworkManager';
+import { useState } from 'react';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
@@ -32,6 +35,38 @@ export default function GameScreen({ navigation }: { navigation: any }) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const turnGlow = useRef(new Animated.Value(0)).current;
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [activeEmojis, setActiveEmojis] = useState<{ id: string; emoji: string; playerName: string }[]>([]);
+
+  const showEmoji = useCallback((emoji: string, senderName: string) => {
+    const id = Math.random().toString();
+    setActiveEmojis(prev => [...prev, { id, emoji, playerName: senderName }]);
+  }, []);
+
+  // Listen for network emojis
+  useEffect(() => {
+    const unsubscribe = networkManager.subscribe((msg) => {
+      if (msg.type === 'CHAT_MESSAGE' && msg.payload?.emoji) {
+        const sender = gameState?.players.find(p => p.id === msg.senderId);
+        const senderName = sender ? sender.name : 'Opponent';
+        // Only show if it's not from ourselves (since we display it instantly)
+        if (msg.senderId !== profile.id) {
+          showEmoji(msg.payload.emoji, senderName);
+        }
+      }
+    });
+    return unsubscribe;
+  }, [gameState?.players, profile.id, showEmoji]);
+
+  const handleSendEmoji = (emoji: string) => {
+    showEmoji(emoji, profile.name);
+    networkManager.sendMessage({
+      type: 'CHAT_MESSAGE',
+      senderId: profile.id,
+      timestamp: Date.now(),
+      payload: { emoji }
+    });
+  };
 
   // Pulse animation for "Your Turn"
   useEffect(() => {
@@ -67,8 +102,37 @@ export default function GameScreen({ navigation }: { navigation: any }) {
           }
         }
         playCardAction(currentPlayer.id, decision.cardId, decision.chosenColor);
+
+        // 30% chance bot reacts with emoji
+        if (Math.random() < 0.3) {
+          const botEmojis = ['😂', '😠', '😭', '🔥', '👏', '😱', '💀', '🎉'];
+          const randomEmoji = botEmojis[Math.floor(Math.random() * botEmojis.length)];
+          setTimeout(() => {
+            showEmoji(randomEmoji, currentPlayer.name);
+            networkManager.sendMessage({
+              type: 'CHAT_MESSAGE',
+              senderId: currentPlayer.id,
+              timestamp: Date.now(),
+              payload: { emoji: randomEmoji }
+            });
+          }, 400);
+        }
       } else {
         drawCardAction(currentPlayer.id);
+        
+        // 20% chance bot gets annoyed/crying emoji on draw
+        if (Math.random() < 0.2) {
+          setTimeout(() => {
+            showEmoji('😭', currentPlayer.name);
+            networkManager.sendMessage({
+              type: 'CHAT_MESSAGE',
+              senderId: currentPlayer.id,
+              timestamp: Date.now(),
+              payload: { emoji: '😭' }
+            });
+          }, 300);
+        }
+
         // After drawing, bot passes (simplified)
         setTimeout(() => {
           passTurnAction(currentPlayer.id);
@@ -79,7 +143,7 @@ export default function GameScreen({ navigation }: { navigation: any }) {
     return () => {
       if (botTimerRef.current) clearTimeout(botTimerRef.current);
     };
-  }, [gameState?.currentPlayerIndex, gameState?.phase]);
+  }, [gameState?.currentPlayerIndex, gameState?.phase, showEmoji]);
 
   // Handle round end / game over
   useEffect(() => {
@@ -320,6 +384,21 @@ export default function GameScreen({ navigation }: { navigation: any }) {
         visible={showColorPicker}
         onSelectColor={handleColorSelect}
       />
+
+      {/* ── Emoji reaction overlay ── */}
+      <EmojiBar onSendEmoji={handleSendEmoji} />
+
+      {/* ── Floating Emojis ── */}
+      {activeEmojis.map((ae) => (
+        <FloatingEmoji
+          key={ae.id}
+          emoji={ae.emoji}
+          playerName={ae.playerName}
+          onDone={() => {
+            setActiveEmojis(prev => prev.filter(x => x.id !== ae.id));
+          }}
+        />
+      ))}
     </View>
   );
 }

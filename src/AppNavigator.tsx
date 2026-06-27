@@ -9,11 +9,16 @@ import ProfileScreen from './screens/ProfileScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import HowToPlayScreen from './screens/HowToPlayScreen';
 import ResultsScreen from './screens/ResultsScreen';
+import OnboardingScreen from './screens/OnboardingScreen';
+import StatsScreen from './screens/StatsScreen';
 import { COLORS } from './constants/theme';
+import { usePlayerStore } from './store/playerStore';
 
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
+  const { profile } = usePlayerStore();
+  
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -21,8 +26,9 @@ export default function AppNavigator() {
           headerShown: false,
           cardStyle: { backgroundColor: COLORS.background.primary },
         }}
-        initialRouteName="Home"
+        initialRouteName={profile.hasCompletedOnboarding ? "Home" : "Onboarding"}
       >
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="GameMode" component={GameModeScreen} />
         <Stack.Screen name="Lobby" component={LobbyScreen} />
@@ -31,6 +37,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
         <Stack.Screen name="Results" component={ResultsScreen} />
+        <Stack.Screen name="Stats" component={StatsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

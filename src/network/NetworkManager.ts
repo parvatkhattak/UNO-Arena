@@ -23,6 +23,9 @@ class NetworkManager {
   // Basic message framing since TCP is a stream protocol
   private buffer: string = '';
 
+  // Listeners for UI notification
+  private listeners: Set<(message: NetworkMessage) => void> = new Set();
+
   /**
    * Start a TCP server on the host device
    */
@@ -126,7 +129,18 @@ class NetworkManager {
       this.server = null;
     }
     this.buffer = '';
+    this.listeners.clear();
     useNetworkStore.getState().resetNetwork();
+  }
+
+  /**
+   * Subscribe to network messages
+   */
+  subscribe(listener: (message: NetworkMessage) => void) {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
   }
 
   /**
@@ -189,6 +203,9 @@ class NetworkManager {
     } else {
       this.handleMessageAsClient(message);
     }
+
+    // Always notify local listeners
+    this.listeners.forEach(l => l(message));
   }
 
   private handleMessageAsHost(message: NetworkMessage, sourceId?: string) {
@@ -220,6 +237,11 @@ class NetworkManager {
         if (sourceId) {
            this.sendMessage({ type: 'JOIN_ACK', timestamp: Date.now(), payload: { assignedId: message.senderId } }, sourceId);
         }
+        break;
+
+      case 'CHAT_MESSAGE':
+        // Host forwards chat messages to all other clients
+        this.sendMessage(message);
         break;
     }
   }
