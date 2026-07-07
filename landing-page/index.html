@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNO Arena — Offline Multiplayer Card Game</title>
+  <meta name="description" content="Play UNO Arena with friends offline using Local P2P Wi-Fi hotspot. Featuring classic mode, Flip side, Blitz timers, custom house rules, and smart AI bots.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="glow-orb orb-red"></div>
+  <div class="glow-orb orb-blue"></div>
+  <div class="glow-orb orb-yellow"></div>
+  <div class="glow-orb orb-green"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-container">
+      <div class="logo">
+        <span class="logo-uno">UNO</span>
+        <span class="logo-arena">ARENA</span>
+      </div>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#setup">Offline Setup</a>
+        <a href="#download" class="btn btn-primary">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-container">
+      <div class="hero-content">
+        <span class="badge">🔥 Now in Beta</span>
+        <h1>The Ultimate Offline P2P <span class="text-gradient">UNO Experience</span></h1>
+        <p>No internet? No signal? No problem. Connect with up to 4 friends using your phone's Wi-Fi hotspot and battle it out in real-time. Features Flip Side, Blitz Mode, and smart AI bots.</p>
+        <div class="hero-actions">
+          <a href="#download" class="btn btn-primary btn-lg">Get the App</a>
+          <a href="#setup" class="btn btn-secondary btn-lg">How to Connect</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="game-mockup">
+          <div class="mockup-header">
+            <div class="mockup-dot red"></div>
+            <div class="mockup-dot yellow"></div>
+            <div class="mockup-dot green"></div>
+          </div>
+          <div class="mockup-screen">
+            <div class="mockup-lobby">
+              <h3>🔴 Host Room: 192.168.43.1</h3>
+              <div class="mockup-players">
+                <div class="m-player active">🦊 Host (You) <span class="p-status">Ready</span></div>
+                <div class="m-player">🦁 Alex (Bot) <span class="p-status">Ready</span></div>
+                <div class="m-player">🐼 Sarah <span class="p-status">Ready</span></div>
+                <div class="m-player empty">+ Waiting...</div>
+              </div>
+              <div class="mockup-button">START MATCH</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Rich Game Modes & Extra Features</h2>
+        <p>UNO Arena is packed with options to customize your play session, offline or solo.</p>
+      </div>
+      <div class="features-grid">
+        <div class="card feature-card">
+          <div class="feature-icon">📡</div>
+          <h3>Local P2P Multiplayer</h3>
+          <p>Host creates a Wi-Fi Hotspot, clients scan or input host IP to join. No cellular data or external routers required.</p>
+        </div>
+        <div class="card feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>UNO Flip Mode</h3>
+          <p>Flip the cards to the dark side. Features harsh draw penalties, skip everyone cards, and dynamic board rotations.</p>
+        </div>
+        <div class="card feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Blitz Mode</h3>
+          <p>Fast-paced turns with a 10-second countdown timer. Play quickly or draw automatically if the timer runs out!</p>
+        </div>
+        <div class="card feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>Smart AI Competitors</h3>
+          <p>Mix bots into multiplayer lobbies or play solo. Easy, medium, and hard bot strategies with human-like delays.</p>
+        </div>
+        <div class="card feature-card">
+          <div class="feature-icon">🏅</div>
+          <h3>Stats & Badges</h3>
+          <p>Local persistence of match statistics and 10 unlockable achievement badges like "Bot Slayer" and "Speed Demon".</p>
+        </div>
+        <div class="card feature-card">
+          <div class="feature-icon">⚙️</div>
+          <h3>Custom House Rules</h3>
+          <p>Toggle card stacking, Jump-Ins, the 7-0 card swap rule, and forced play configs in the settings menu.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Setup Section -->
+  <section id="setup" class="setup">
+    <div class="container">
+      <div class="section-header">
+        <h2>How to Setup Offline Play</h2>
+        <p>Zero internet required. Just follow these steps to connect with nearby players.</p>
+      </div>
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Host Sets Up Hotspot</h3>
+          <p>One player turns on their phone's <strong>Wi-Fi Hotspot</strong> (settings menu). Note: cellular data can remain OFF.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Clients Join Hotspot</h3>
+          <p>Other players open Wi-Fi settings on their devices and connect to the host's created network.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Connect and Play</h3>
+          <p>Open UNO Arena. Host presses "Host Game" to get room IP. Clients press "Join Game" and type that IP. Play!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Section -->
+  <section id="download" class="download">
+    <div class="container download-container">
+      <h2>Ready to enter the Arena?</h2>
+      <p>Download the latest production and preview builds directly to your Android or iOS device.</p>
+      <div class="download-buttons">
+        <div class="download-option">
+          <h3>Android Preview</h3>
+          <p>Direct APK package installation for quick testing.</p>
+          <a href="#" class="btn btn-primary btn-lg">Download APK</a>
+        </div>
+        <div class="download-option">
+          <h3>Production Release</h3>
+          <p>Get the official build from the mobile app stores.</p>
+          <div class="store-links">
+            <a href="#" class="btn btn-secondary">Google Play</a>
+            <a href="#" class="btn btn-secondary">Apple App Store</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-container">
+      <p>&copy; 2026 UNO Arena Project. All rights reserved.</p>
+      <p>Built for offline, zero-signal multiplayer entertainment.</p>
+    </div>
+  </footer>
+</body>
+</html>

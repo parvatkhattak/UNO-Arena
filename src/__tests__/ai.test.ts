@@ -4,7 +4,7 @@
  */
 
 import { botDecide, shouldBotCallUno, getBotDelay } from '../game/ai';
-import { Card, GameState, Player, DEFAULT_GAME_SETTINGS, DEFAULT_HOUSE_RULES } from '../types/game';
+import { Card, GameState, Player, DEFAULT_GAME_SETTINGS, DEFAULT_HOUSE_RULES, CardColor } from '../types/game';
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ function makePlayer(id: string, hand: Card[], opts: Partial<Player> = {}): Playe
   };
 }
 
-function createTestState(players: Player[], topDiscard: Card, currentColor: Card['color']): GameState {
+function createTestState(players: Player[], topDiscard: Card, currentColor: CardColor): GameState {
   return {
     id: 'test', phase: 'playing', settings: DEFAULT_GAME_SETTINGS,
     players, currentPlayerIndex: 0, direction: 'clockwise',

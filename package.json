@@ -39,7 +39,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest --no-cache"
+    "test": "jest --no-cache",
+    "build:android:preview": "eas build --platform android --profile preview",
+    "build:android:prod": "eas build --platform android --profile production",
+    "build:ios:prod": "eas build --platform ios --profile production"
   },
   "private": true
 }
