@@ -13,7 +13,9 @@
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "UNO Arena uses the local network to connect with nearby players for offline multiplayer gaming.",
         "NSBluetoothAlwaysUsageDescription": "UNO Arena uses Bluetooth to discover and connect with nearby players.",
-        "NSBonjourServices": ["_unoarena._tcp"]
+        "NSBonjourServices": [
+          "_unoarena._tcp"
+        ]
       }
     },
     "android": {
@@ -47,6 +49,12 @@
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "cbf66d8c-f6d2-4488-8198-dc2329ad0f0c"
+      }
+    },
+    "owner": "sweetboypuku"
   }
 }

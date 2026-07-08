@@ -103,8 +103,8 @@ export function getCardEffect(card: Card, state: GameState): Partial<GameState> 
         updates.stackCount = state.stackCount + 2;
         updates.currentPlayerIndex = getNextPlayerIndex(state.currentPlayerIndex, state.direction, pc);
       } else {
-        updates.stackCount = 0;
-        updates.currentPlayerIndex = getNextPlayerIndex(state.currentPlayerIndex, state.direction, pc, 2);
+        updates.stackCount = 2;
+        updates.currentPlayerIndex = getNextPlayerIndex(state.currentPlayerIndex, state.direction, pc);
       }
       break;
     case 'wild_draw4':
@@ -112,8 +112,8 @@ export function getCardEffect(card: Card, state: GameState): Partial<GameState> 
         updates.stackCount = state.stackCount + 4;
         updates.currentPlayerIndex = getNextPlayerIndex(state.currentPlayerIndex, state.direction, pc);
       } else {
-        updates.stackCount = 0;
-        updates.currentPlayerIndex = getNextPlayerIndex(state.currentPlayerIndex, state.direction, pc, 2);
+        updates.stackCount = 4;
+        updates.currentPlayerIndex = getNextPlayerIndex(state.currentPlayerIndex, state.direction, pc);
       }
       break;
     case 'wild':

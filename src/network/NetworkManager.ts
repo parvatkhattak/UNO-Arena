@@ -150,7 +150,7 @@ class NetworkManager {
    */
   sendMessage(message: NetworkMessage, specificClientId?: string) {
     // Add newline delimiter for simple framing
-    const msgString = JSON.stringify(message) + '\\n';
+    const msgString = JSON.stringify(message) + '\n';
 
     if (useNetworkStore.getState().isHost) {
       if (specificClientId) {
@@ -176,7 +176,7 @@ class NetworkManager {
     this.buffer += data;
     let newlineIndex: number;
 
-    while ((newlineIndex = this.buffer.indexOf('\\n')) !== -1) {
+    while ((newlineIndex = this.buffer.indexOf('\n')) !== -1) {
       const messageString = this.buffer.substring(0, newlineIndex);
       this.buffer = this.buffer.substring(newlineIndex + 1);
 

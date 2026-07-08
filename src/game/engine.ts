@@ -233,7 +233,7 @@ export function checkGameOver(state: GameState): GameState {
   // Update cumulative scores
   const updatedPlayers = state.players.map(p => ({
     ...p,
-    score: p.score + (roundScores[p.id] || 0),
+    score: (p.score ?? 0) + (roundScores[p.id] ?? 0),
   }));
 
   // Check if any player reached target score

@@ -133,9 +133,16 @@ export default function GameScreen({ navigation }: { navigation: any }) {
           }, 300);
         }
 
-        // After drawing, bot passes (simplified)
+        // After drawing, bot only passes if the drawn card is not playable
         setTimeout(() => {
-          passTurnAction(currentPlayer.id);
+          const updatedState = useGameStore.getState().gameState;
+          if (!updatedState) return;
+          const updatedBot = updatedState.players.find(p => p.id === currentPlayer.id);
+          if (!updatedBot) return;
+          const topCard2 = updatedState.discardPile[updatedState.discardPile.length - 1];
+          if (!hasPlayableCard(updatedBot.hand, topCard2, updatedState.currentColor, updatedState.settings.houseRules, updatedState.stackCount)) {
+            passTurnAction(currentPlayer.id);
+          }
         }, 500);
       }
     }, delay);
