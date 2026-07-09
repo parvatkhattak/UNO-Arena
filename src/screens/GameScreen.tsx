@@ -14,7 +14,7 @@ import { usePlayerStore } from '../store/playerStore';
 import UnoCard from '../components/cards/UnoCard';
 import ColorPicker from '../components/game/ColorPicker';
 import { Card, CardColor } from '../types/game';
-import { canPlayCard, getPlayableCards } from '../game/actions';
+import { canPlayCard, getPlayableCards, hasPlayableCard } from '../game/actions';
 import { botDecide, shouldBotCallUno, getBotDelay } from '../game/ai';
 import { playSound, triggerHaptic } from '../utils/sounds';
 import { EmojiBar, FloatingEmoji } from '../components/game/EmojiBar';
