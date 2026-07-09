@@ -12,6 +12,10 @@ import {
   passTurn,
   checkGameOver,
 } from '../game/engine';
+
+// Mock Math.random to make card shuffles and starting card selection deterministic
+const mockMathRandom = jest.spyOn(global.Math, 'random').mockReturnValue(0.15);
+
 import { Card, Player, GameSettings, DEFAULT_GAME_SETTINGS, DEFAULT_HOUSE_RULES } from '../types/game';
 
 // ── Helpers ──────────────────────────────────────────────

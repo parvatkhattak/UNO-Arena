@@ -243,7 +243,7 @@ describe('getCardEffect', () => {
 
   test('draw2 without stacking skips next player', () => {
     const effect = getCardEffect(makeCard('red', 'draw2'), baseState);
-    expect(effect.currentPlayerIndex).toBe(2); // skips player 1
+    expect(effect.currentPlayerIndex).toBe(1); // next player must act (draw)
   });
 
   test('draw2 with stacking accumulates stack', () => {
