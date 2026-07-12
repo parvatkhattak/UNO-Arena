@@ -90,14 +90,14 @@ export default function UnoCard({
     if (!disabled) {
       triggerHaptic('light');
       Animated.spring(scaleAnim, {
-        toValue: 1.08, damping: 10, stiffness: 300, useNativeDriver: true,
+        toValue: 1.12, damping: 8, stiffness: 400, useNativeDriver: true,
       }).start();
     }
   };
 
   const handlePressOut = () => {
     Animated.spring(scaleAnim, {
-      toValue: 1, damping: 10, stiffness: 300, useNativeDriver: true,
+      toValue: 1, damping: 10, stiffness: 350, useNativeDriver: true,
     }).start();
   };
 
@@ -157,6 +157,18 @@ export default function UnoCard({
           borderColor: cardColor + '60',
         },
       ]}>
+        {/* Glossy Overlay */}
+        <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
+          <Defs>
+            <LinearGradient id="gloss" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor="rgba(255,255,255,0.15)" />
+              <Stop offset="0.5" stopColor="rgba(255,255,255,0)" />
+              <Stop offset="1" stopColor="rgba(0,0,0,0.15)" />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#gloss)" />
+        </Svg>
+
         {/* Colored inner area */}
         <View style={[
           styles.cardInner,

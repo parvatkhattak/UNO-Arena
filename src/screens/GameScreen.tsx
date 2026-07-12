@@ -393,10 +393,24 @@ export default function GameScreen({ navigation }: { navigation: any }) {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.handScroll}
         >
-          {myPlayer?.hand.map((card) => {
+          {myPlayer?.hand.map((card, index) => {
             const isPlayable = playableCards.some(c => c.id === card.id);
+            // Simple enter animation based on index to stagger them slightly
+            const enterAnim = new Animated.Value(0);
+            Animated.spring(enterAnim, {
+              toValue: 1,
+              tension: 50,
+              friction: 7,
+              useNativeDriver: true,
+              delay: index * 50
+            }).start();
+            
             return (
-              <View key={card.id} style={[styles.handCard, isPlayable && isMyTurn && styles.handCardPlayable]}>
+              <Animated.View key={card.id} style={[
+                styles.handCard, 
+                isPlayable && isMyTurn && styles.handCardPlayable,
+                { transform: [{ scale: enterAnim }, { translateY: enterAnim.interpolate({ inputRange: [0, 1], outputRange: [50, 0] }) }] }
+              ]}>
                 <UnoCard
                   card={card}
                   size="hand"
@@ -404,7 +418,7 @@ export default function GameScreen({ navigation }: { navigation: any }) {
                   disabled={!isMyTurn || !isPlayable}
                   highlighted={isPlayable && isMyTurn}
                 />
-              </View>
+              </Animated.View>
             );
           })}
         </ScrollView>

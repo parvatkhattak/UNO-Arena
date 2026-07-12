@@ -22,6 +22,18 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const buttonOpacity = useRef(new Animated.Value(0)).current;
   const glowPulse = useRef(new Animated.Value(0.3)).current;
 
+  const floatAnim1 = useRef(new Animated.Value(0)).current;
+  const floatAnim2 = useRef(new Animated.Value(0)).current;
+  const floatAnim3 = useRef(new Animated.Value(0)).current;
+  
+  // Track press state for each button independently
+  const btnScaleAnims = useRef([
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+  ]).current;
+
   useEffect(() => {
     // Logo entrance animation
     Animated.sequence([
@@ -45,17 +57,48 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         Animated.timing(glowPulse, { toValue: 0.3, duration: 1500, useNativeDriver: true }),
       ])
     ).start();
+
+    // Floating animations for background circles
+    const floatLoop = (anim: Animated.Value, duration: number, translateY: number) => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, { toValue: translateY, duration: duration, useNativeDriver: true }),
+          Animated.timing(anim, { toValue: 0, duration: duration, useNativeDriver: true }),
+        ])
+      ).start();
+    };
+
+    floatLoop(floatAnim1, 4000, -20);
+    floatLoop(floatAnim2, 5000, 20);
+    floatLoop(floatAnim3, 6000, -30);
   }, []);
 
-  const renderMenuButton = (title: string, subtitle: string, color: string, onPress: () => void, delay: number) => (
+  const handlePressIn = (index: number) => {
+    Animated.spring(btnScaleAnims[index], {
+      toValue: 0.95, useNativeDriver: true, speed: 20, bounciness: 10
+    }).start();
+  };
+
+  const handlePressOut = (index: number) => {
+    Animated.spring(btnScaleAnims[index], {
+      toValue: 1, useNativeDriver: true, speed: 20, bounciness: 10
+    }).start();
+  };
+
+  const renderMenuButton = (title: string, subtitle: string, color: string, onPress: () => void, delay: number, index: number) => (
     <Animated.View style={{
       opacity: buttonOpacity,
-      transform: [{ translateY: Animated.multiply(buttonSlide, new Animated.Value(1 + delay * 0.3)) }],
+      transform: [
+        { translateY: Animated.multiply(buttonSlide, new Animated.Value(1 + delay * 0.3)) },
+        { scale: btnScaleAnims[index] }
+      ],
     }}>
       <TouchableOpacity
         style={[styles.menuButton, { borderColor: color + '40' }]}
         onPress={onPress}
-        activeOpacity={0.7}
+        onPressIn={() => handlePressIn(index)}
+        onPressOut={() => handlePressOut(index)}
+        activeOpacity={0.9}
       >
         <View style={[styles.menuButtonGlow, { backgroundColor: color + '15' }]} />
         <View style={styles.menuButtonContent}>
@@ -70,9 +113,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   return (
     <View style={styles.container}>
       {/* Background decorative elements */}
-      <View style={styles.bgCircle1} />
-      <View style={styles.bgCircle2} />
-      <View style={styles.bgCircle3} />
+      <Animated.View style={[styles.bgCircle1, { transform: [{ translateY: floatAnim1 }] }]} />
+      <Animated.View style={[styles.bgCircle2, { transform: [{ translateY: floatAnim2 }] }]} />
+      <Animated.View style={[styles.bgCircle3, { transform: [{ translateY: floatAnim3 }] }]} />
 
       {/* Logo */}
       <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }] }]}>
@@ -86,19 +129,19 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       <View style={styles.menuContainer}>
         {renderMenuButton(
           '🎮  Play Game', 'Start a new match',
-          COLORS.accent.primary, () => navigation.navigate('GameMode'), 0
+          COLORS.accent.primary, () => navigation.navigate('GameMode'), 0, 0
         )}
         {renderMenuButton(
           '👤  Profile', 'Stats & Customization',
-          COLORS.accent.secondary, () => navigation.navigate('Profile'), 1
+          COLORS.accent.secondary, () => navigation.navigate('Profile'), 1, 1
         )}
         {renderMenuButton(
           '⚙️  Settings', 'Sound, Rules & More',
-          COLORS.accent.warning, () => navigation.navigate('Settings'), 2
+          COLORS.accent.warning, () => navigation.navigate('Settings'), 2, 2
         )}
         {renderMenuButton(
           '📖  How to Play', 'Learn the rules',
-          COLORS.accent.success, () => navigation.navigate('HowToPlay'), 3
+          COLORS.accent.success, () => navigation.navigate('HowToPlay'), 3, 3
         )}
       </View>
 
