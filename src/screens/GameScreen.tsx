@@ -14,7 +14,7 @@ import { usePlayerStore } from '../store/playerStore';
 import UnoCard from '../components/cards/UnoCard';
 import ColorPicker from '../components/game/ColorPicker';
 import { Card, CardColor } from '../types/game';
-import { canPlayCard, getPlayableCards, hasPlayableCard } from '../game/actions';
+import { getPlayableCards } from '../game/actions';
 import { botDecide, shouldBotCallUno, getBotDelay } from '../game/ai';
 import { playSound, triggerHaptic } from '../utils/sounds';
 import { EmojiBar, FloatingEmoji } from '../components/game/EmojiBar';
@@ -90,18 +90,27 @@ export default function GameScreen({ navigation }: { navigation: any }) {
     if (!currentPlayer || currentPlayer.type !== 'bot') return;
 
     const delay = getBotDelay(currentPlayer.botDifficulty || 'medium');
+    const botId = currentPlayer.id;
 
     botTimerRef.current = setTimeout(() => {
-      const decision = botDecide(gameState, currentPlayer);
+      // CRITICAL: Read fresh state from the store, not the stale closure
+      const freshState = useGameStore.getState().gameState;
+      if (!freshState || freshState.phase !== 'playing') return;
+
+      // Verify this bot is still the current player
+      const freshBot = freshState.players[freshState.currentPlayerIndex];
+      if (!freshBot || freshBot.id !== botId) return;
+
+      const decision = botDecide(freshState, freshBot);
 
       if (decision.action === 'play' && decision.cardId) {
-        // Check if bot should call UNO before playing
-        if (currentPlayer.hand.length === 2) {
-          if (shouldBotCallUno(currentPlayer.botDifficulty || 'medium')) {
-            callUnoAction(currentPlayer.id);
+        // Call UNO before playing if bot will have 1 card left
+        if (freshBot.hand.length === 2) {
+          if (shouldBotCallUno(freshBot.botDifficulty || 'medium')) {
+            callUnoAction(freshBot.id);
           }
         }
-        playCardAction(currentPlayer.id, decision.cardId, decision.chosenColor);
+        playCardAction(freshBot.id, decision.cardId, decision.chosenColor);
 
         // 30% chance bot reacts with emoji
         if (Math.random() < 0.3) {
@@ -111,37 +120,52 @@ export default function GameScreen({ navigation }: { navigation: any }) {
             showEmoji(randomEmoji, currentPlayer.name);
             networkManager.sendMessage({
               type: 'CHAT_MESSAGE',
-              senderId: currentPlayer.id,
+              senderId: freshBot.id,
               timestamp: Date.now(),
               payload: { emoji: randomEmoji }
             });
           }, 400);
         }
       } else {
-        drawCardAction(currentPlayer.id);
-        
-        // 20% chance bot gets annoyed/crying emoji on draw
+        // Bot must draw
+        drawCardAction(freshBot.id);
+
+        // 20% chance bot gets annoyed emoji on draw
         if (Math.random() < 0.2) {
           setTimeout(() => {
             showEmoji('😭', currentPlayer.name);
             networkManager.sendMessage({
               type: 'CHAT_MESSAGE',
-              senderId: currentPlayer.id,
+              senderId: freshBot.id,
               timestamp: Date.now(),
               payload: { emoji: '😭' }
             });
           }, 300);
         }
 
-        // After drawing, bot only passes if the drawn card is not playable
+        // After drawing, check if bot can play the drawn card
         setTimeout(() => {
-          const updatedState = useGameStore.getState().gameState;
-          if (!updatedState) return;
-          const updatedBot = updatedState.players.find(p => p.id === currentPlayer.id);
-          if (!updatedBot) return;
-          const topCard2 = updatedState.discardPile[updatedState.discardPile.length - 1];
-          if (!hasPlayableCard(updatedBot.hand, topCard2, updatedState.currentColor, updatedState.settings.houseRules, updatedState.stackCount)) {
-            passTurnAction(currentPlayer.id);
+          const postDrawState = useGameStore.getState().gameState;
+          if (!postDrawState || postDrawState.phase !== 'playing') return;
+
+          // Check if the bot is STILL the current player after drawing
+          // (drawCard advances the turn when stackCount > 0)
+          const postDrawBot = postDrawState.players[postDrawState.currentPlayerIndex];
+          if (!postDrawBot || postDrawBot.id !== botId) return;
+
+          // Bot is still current player — try to play a card
+          const postDrawDecision = botDecide(postDrawState, postDrawBot);
+          if (postDrawDecision.action === 'play' && postDrawDecision.cardId) {
+            // Call UNO if about to go down to 1 card
+            if (postDrawBot.hand.length === 2) {
+              if (shouldBotCallUno(postDrawBot.botDifficulty || 'medium')) {
+                callUnoAction(postDrawBot.id);
+              }
+            }
+            playCardAction(postDrawBot.id, postDrawDecision.cardId, postDrawDecision.chosenColor);
+          } else {
+            // Can't play anything — pass the turn
+            passTurnAction(postDrawBot.id);
           }
         }, 500);
       }

@@ -94,14 +94,21 @@ export function playCard(state: GameState, playerId: string, cardId: string, cho
     lastAction: { type: 'PLAY_CARD', playerId, timestamp: Date.now(), payload: { cardId } },
   };
 
-  // Apply card effects
-  const effects = getCardEffect(card, newState);
-  newState = { ...newState, ...effects };
-
-  // Check for winner
+  // Check for winner BEFORE applying card effects that advance the turn.
+  // If the player just emptied their hand, the round is over — don't advance
+  // currentPlayerIndex or the bot useEffect will fire for the "next" player.
   if (newHand.length === 0) {
+    // Only apply non-turn effects (direction, stack) for scoring context
+    const effects = getCardEffect(card, newState);
+    if (effects.direction) newState.direction = effects.direction;
+    if (effects.stackCount !== undefined) newState.stackCount = effects.stackCount;
+    // Do NOT apply effects.currentPlayerIndex — the round is over
     newState.phase = 'round_end';
     newState.winner = playerId;
+  } else {
+    // Normal play — apply all card effects including turn advance
+    const effects = getCardEffect(card, newState);
+    newState = { ...newState, ...effects };
   }
 
   return newState;

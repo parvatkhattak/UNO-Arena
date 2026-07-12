@@ -8,7 +8,6 @@
     "@react-navigation/native": "^7.2.5",
     "@react-navigation/stack": "^7.9.3",
     "expo": "~56.0.15",
-    "expo-av": "^16.0.8",
     "expo-font": "^56.0.5",
     "expo-haptics": "^56.0.3",
     "expo-linear-gradient": "^56.0.4",
@@ -42,8 +41,8 @@
   "scripts": {
     "postinstall": "patch-package",
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --no-cache",
     "build:android:preview": "npx eas build --platform android --profile preview",
@@ -55,8 +54,7 @@
     "doctor": {
       "reactNativeDirectoryCheck": {
         "exclude": [
-          "react-native-tcp-socket",
-          "expo-av"
+          "react-native-tcp-socket"
         ]
       }
     }

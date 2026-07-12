@@ -94,6 +94,16 @@ function mediumBot(playable: Card[], botPlayer: Player, state: GameState): BotDe
  * targets the player closest to winning
  */
 function hardBot(playable: Card[], botPlayer: Player, state: GameState): BotDecision {
+  // If bot has exactly 1 card left, just play it — no strategy needed
+  if (botPlayer.hand.length === 1) {
+    const card = playable[0];
+    return {
+      action: 'play',
+      cardId: card.id,
+      chosenColor: card.color === 'wild' ? bestColor(botPlayer.hand) : undefined,
+    };
+  }
+
   // Find the player closest to winning (fewest cards, not self)
   const opponents = state.players.filter(p => p.id !== botPlayer.id);
   const dangerPlayer = opponents.reduce((min, p) =>
@@ -164,6 +174,9 @@ function bestColor(hand: Card[]): CardColor {
       counts[card.color as CardColor]++;
     }
   }
+  // If bot has no non-wild cards, pick a random color
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (total === 0) return randomColor();
   return (Object.entries(counts) as [CardColor, number][])
     .sort((a, b) => b[1] - a[1])[0][0];
 }
