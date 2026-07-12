@@ -97,10 +97,11 @@ function hardBot(playable: Card[], botPlayer: Player, state: GameState): BotDeci
   // If bot has exactly 1 card left, just play it — no strategy needed
   if (botPlayer.hand.length === 1) {
     const card = playable[0];
+    const isWildType = card.color === 'wild' || card.value === 'wild' || card.value === 'wild_draw4';
     return {
       action: 'play',
       cardId: card.id,
-      chosenColor: card.color === 'wild' ? bestColor(botPlayer.hand) : undefined,
+      chosenColor: isWildType ? bestColor(botPlayer.hand) : undefined,
     };
   }
 
@@ -121,10 +122,11 @@ function hardBot(playable: Card[], botPlayer: Player, state: GameState): BotDeci
     const skipCards = playable.filter(c => c.value === 'skip' || c.value === 'draw2' || c.value === 'wild_draw4');
     if (skipCards.length > 0) {
       const card = skipCards[0];
+      const isWildType = card.color === 'wild' || card.value === 'wild' || card.value === 'wild_draw4';
       return {
         action: 'play',
         cardId: card.id,
-        chosenColor: card.color === 'wild' ? bestColor(botPlayer.hand) : undefined,
+        chosenColor: isWildType ? bestColor(botPlayer.hand) : undefined,
       };
     }
   }
@@ -152,12 +154,13 @@ function hardBot(playable: Card[], botPlayer: Player, state: GameState): BotDeci
     };
   }
 
-  // Fall back to wild
+  // Fall back to the first available card, and if it's a wild type, ensure we pass a chosenColor
   const card = playable[0];
+  const isWildType = card.color === 'wild' || card.value === 'wild' || card.value === 'wild_draw4';
   return {
     action: 'play',
     cardId: card.id,
-    chosenColor: card.color === 'wild' ? bestColor(botPlayer.hand) : undefined,
+    chosenColor: isWildType ? bestColor(botPlayer.hand) : undefined,
   };
 }
 

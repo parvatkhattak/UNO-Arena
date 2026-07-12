@@ -326,11 +326,11 @@ export default function GameScreen({ navigation }: { navigation: any }) {
         {/* Draw pile */}
         <TouchableOpacity
           onPress={handleDraw}
-          disabled={!isMyTurn}
+          disabled={!isMyTurn || gameState.hasDrawnThisTurn}
           activeOpacity={0.7}
           style={styles.drawPileContainer}
         >
-          <View style={[styles.drawPile, !isMyTurn && { opacity: 0.5 }]}>
+          <View style={[styles.drawPile, (!isMyTurn || gameState.hasDrawnThisTurn) && { opacity: 0.5 }]}>
             <View style={styles.drawPileStack}>
               <View style={[styles.drawPileCard, { top: 4, left: 4 }]} />
               <View style={[styles.drawPileCard, { top: 2, left: 2 }]} />
@@ -367,7 +367,7 @@ export default function GameScreen({ navigation }: { navigation: any }) {
 
       {/* ── Action Buttons ── */}
       <View style={styles.actionRow}>
-        {isMyTurn && (
+        {isMyTurn && gameState.hasDrawnThisTurn && (
           <TouchableOpacity style={styles.passBtn} onPress={handlePass} activeOpacity={0.7}>
             <Text style={styles.passBtnText}>Pass</Text>
           </TouchableOpacity>

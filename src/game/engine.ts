@@ -38,6 +38,7 @@ export function createInitialGameState(
     discardPile: [startCard],
     currentColor: startColor,
     stackCount: 0,
+    hasDrawnThisTurn: false,
     currentSide: 'light',
     roundNumber: 1,
   };
@@ -91,6 +92,7 @@ export function playCard(state: GameState, playerId: string, cardId: string, cho
     players: updatedPlayers,
     discardPile: newDiscardPile,
     currentColor: newColor,
+    hasDrawnThisTurn: false,
     lastAction: { type: 'PLAY_CARD', playerId, timestamp: Date.now(), payload: { cardId } },
   };
 
@@ -109,6 +111,14 @@ export function playCard(state: GameState, playerId: string, cardId: string, cho
     // Normal play — apply all card effects including turn advance
     const effects = getCardEffect(card, newState);
     newState = { ...newState, ...effects };
+
+    // Auto-resolve stack penalties if stacking is disabled
+    if (newState.stackCount > 0 && !newState.settings.houseRules.stacking) {
+      const penalizedPlayerId = newState.players[newState.currentPlayerIndex].id;
+      newState = drawCard(newState, penalizedPlayerId);
+      // Ensure the last action reflects the play for UI consistency
+      newState.lastAction = { type: 'PLAY_CARD', playerId, timestamp: Date.now(), payload: { cardId } };
+    }
   }
 
   return newState;
@@ -164,6 +174,7 @@ export function drawCard(state: GameState, playerId: string): GameState {
     drawPile,
     discardPile,
     stackCount: 0,
+    hasDrawnThisTurn: nextIndex === state.currentPlayerIndex, // true if stayed on same player, false if advanced
     currentPlayerIndex: nextIndex,
     lastAction: { type: 'DRAW_CARD', playerId, timestamp: Date.now() },
   };
@@ -226,6 +237,7 @@ export function passTurn(state: GameState, playerId: string): GameState {
 
   return {
     ...state,
+    hasDrawnThisTurn: false,
     currentPlayerIndex: getNextPlayerIndex(state.currentPlayerIndex, state.direction, state.players.length),
     lastAction: { type: 'PASS', playerId, timestamp: Date.now() },
   };

@@ -99,6 +99,7 @@ export interface GameState {
   currentColor: CardColor;   // Active color (may differ from top card if Wild played)
   turnTimer?: number;         // Remaining seconds (Blitz mode)
   stackCount: number;         // Accumulated draw count when stacking
+  hasDrawnThisTurn?: boolean; // True if current player has already drawn a card
   currentSide: CardSide;      // Current side for Flip mode
   winner?: string;            // Player ID of round winner
   roundNumber: number;
