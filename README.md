@@ -309,7 +309,7 @@ npx eas login
 # Preview build — produces a .apk file
 npm run build:android:preview
 
-# Production build — produces a .aab for the Play Store
+# Production build — produces a .aab for the PlayStore
 npm run build:android:prod
 ```
 
